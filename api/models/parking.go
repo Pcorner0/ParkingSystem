@@ -36,6 +36,8 @@ func GetFile(data *Parking) error {
 	csvFile, err := os.Open("DB/database.csv")
 	csvReader := csv.NewReader(csvFile)
 	data.Data, err = csvReader.ReadAll()
+	data.Cols = len(data.Data[0])
+	data.Rows = len(data.Data)
 
 	if err != nil {
 		fmt.Println(err)
