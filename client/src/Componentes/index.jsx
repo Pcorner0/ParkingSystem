@@ -27,8 +27,6 @@ const TableIndex = () => {
         getData();
     }, []);
 
-    console.log(data);
-    
     //#############################################################################################################################
     var array = []
     data.map((row, i) => {
@@ -46,16 +44,11 @@ const TableIndex = () => {
         array.push(dict)
     })
     
-    console.log(array, "array", cols, "cols", rows, "rows");
-
     //#############################################################################################################################
     const columns = [];
 
     for (let i = 0; i < cols; i++) {
-        console.log(i)
-
         const dict = {};
-    
         dict.name = "col" + String(i+1);
         dict.selector = row => row["col" + String(i+1)];
         dict.center = true;
@@ -73,7 +66,7 @@ const TableIndex = () => {
                 when: row => row["col" + String(i+1)] === "OCUPADO",
                 style: {
                     backgroundColor: "red",
-                    color: "white",
+                    color: "black",
                     "fontWeight": "bold",
                         "&:hover": {cursor: "pointer"}
                 }
@@ -81,34 +74,119 @@ const TableIndex = () => {
         ];
         columns.push(dict);
     }
-    console.log(columns, "columns");
 
     //#############################################################################################################################
     // #Handlers
-    const handleButton = (e) => {
-        console.log("Se imprime");
-        alert("Se ha registrado una entrada");
+    const headers = {
+        'Content-Type': 'application/json',
+      }
+    const handleEntrada = (e) => {
+        e.preventDefault();
+        let sended = false;
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            for (let j = 0; j < row.length; j++) {
+                const item = row[j];
+                if (item === "1") {
+                    const ResponseObject = {
+                        rows:i ,
+                        cols:j
+                    }
+                    console.log(ResponseObject);
+                    
+                    axios.post("http://localhost:8080/entrada", ResponseObject, {headers: headers})
+                    .then(res => {
+                        console.log(res);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+                    sended = true;
+                    alert("Pase a la fila: " + String(i+1) + " y columna: " + String(j+1));
+                    window.location.reload(false);
+                    break;
+                }
+            }
 
+            if (sended) {
+                break;
+            }
+        }
+        if (!sended) {
+            alert("No hay espacios disponibles");
+        }
+    }
+
+    const handleSalida = (e) => {
+        e.preventDefault();
+        let sended = false;
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            for (let j = 0; j < row.length; j++) {
+                const item = row[j];
+                if (item === "0") {
+                    const ResponseObject = {
+                        rows:i ,
+                        cols:j
+                    }
+                    console.log(ResponseObject);
+                    
+                    axios.put("http://localhost:8080/salida", ResponseObject, {headers: headers})
+                    .then(res => {
+                        console.log(res);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+                    sended = true;
+                    
+                    alert("Desocupando espacio: " + String(i+1) + " y columna: " + String(j+1));
+                    window.location.reload(false);
+                    break;
+                }
+            }
+
+            if (sended) {
+                break;
+            }
+        }
+        if (!sended) {
+            alert("No hay espacios ocupados");
+        }
     }
 
     return (
         <Fragment>
+            
             <Container fluid={true} className={"datatables"}>
+                
+            <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>  
+                <h1>SISTEMA DE PARQUEO DE VEHICULOS</h1>
+            </div>
+            <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>  
+                <h2>Espacios Totales: {rows * cols - data.length}</h2>
+            </div>
+
                 <Row>
-
                     <Card>
-                        <h1>SISTEMA DE PARQUEO DE VEHICULOS</h1>
-
                         <CardBody>
                             <DataTable
-                                title="Lista de Vehiculos"
+                                
                                 columns={columns}
                                 data={array}
                                 
                             />
                         </CardBody>
-                    <Button onClick={handleButton}>
+
+                    <Button onClick={handleEntrada}>
                         INGRESAR AL ESTACIONAMIENTO
+                    </Button>
+                    <span>
+                        <br/>
+                    </span>
+
+                    <Button onClick={handleSalida}>
+                        SALIR DEL ESTACIONAMIENTO
                     </Button>
                     
                     </Card>

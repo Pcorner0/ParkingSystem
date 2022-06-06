@@ -43,7 +43,7 @@ func UpdateData(c *gin.Context) {
 		c.JSON(http.StatusOK, Data)
 		return
 	} else {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusOK, err)
 	}
 
 }
