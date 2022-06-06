@@ -33,3 +33,11 @@ $ npm run dev
 
 ## Uso
 Una vez nos ubiquemos dentro del http://localhost:3000/ nos encontraremos con una tabla con los espacios disponibles y usados además de 2 botones que simulan la entrada o salida de un vehiculo.
+![image](https://user-images.githubusercontent.com/46201256/172214621-db047a01-4bd5-4eff-9275-8e283c9515f4.png)
+
+![image](https://user-images.githubusercontent.com/46201256/172214692-54f91439-0b0e-401c-a7ea-fa37eae2c9d6.png)
+
+![image](https://user-images.githubusercontent.com/46201256/172214740-69721099-7d90-4cec-9989-8dbd76692692.png)
+
+![image](https://user-images.githubusercontent.com/46201256/172214796-8e6acd67-482b-4f4b-b852-a8c8141aabde.png)
+
