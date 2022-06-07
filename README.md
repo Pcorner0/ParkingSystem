@@ -9,6 +9,9 @@ Para poder hacer uso del Sistema es necesario instalar y lanzar los servidores t
 Inicialmente el proyecto contempla un espacio de 4*4 cajones de estacionamiento, almacenado en un archivo separado por comas alojado dentro de la dirección
 *** api/DB/database.csv *** que se actualiza conforme se haga uso de la pagina.
 
+### Actualización
+La plataforma ahora retira o agrega los espacios de manera aleatoria, además de agregar un conteo de espacios disponibles.
+
 ## Instalación
 
 ```bash
