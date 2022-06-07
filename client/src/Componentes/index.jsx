@@ -2,10 +2,14 @@ import React, { Fragment , useEffect, useState} from "react";
 import {Container, Row, Col, Card, CardBody, Button} from 'reactstrap';
 import DataTable from 'react-data-table-component';
 import axios from 'axios';
-
+import { Form, FormGroup, Label, Input  } from "reactstrap";
 
 const TableIndex = () => {
     const [data, setData] = useState([]);
+    const [data2, setData2] = useState({
+        rows: 4,
+        cols: 4,
+    });
     const [rows, setRows] = useState(0);
     const [cols, setCols] = useState(0);
 
@@ -79,81 +83,119 @@ const TableIndex = () => {
     // #Handlers
     const headers = {
         'Content-Type': 'application/json',
-      }
+    }
+
+    function between(min, max) {  
+        return Math.floor(
+          Math.random() * (max - min) + min
+        )
+    }
+
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+
     const handleEntrada = (e) => {
         e.preventDefault();
-        let sended = false;
-        for (let i = 0; i < data.length; i++) {
-            const row = data[i];
-            for (let j = 0; j < row.length; j++) {
-                const item = row[j];
-                if (item === "1") {
-                    const ResponseObject = {
-                        rows:i ,
-                        cols:j
-                    }
-                    console.log(ResponseObject);
-                    
-                    axios.post("http://localhost:8080/entrada", ResponseObject, {headers: headers})
-                    .then(res => {
-                        console.log(res);
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    });
-                    sended = true;
-                    alert("Pase a la fila: " + String(i+1) + " y columna: " + String(j+1));
-                    window.location.reload(false);
-                    break;
-                }
-            }
+        const historial = [];
 
-            if (sended) {
-                break;
+        let sended = false;
+        while (sended === false) {
+            const randCol = between(0, cols);
+            const randRow = between(0, rows);
+            historial.push([randRow, randCol]);
+
+
+            if (data[randRow][randCol] === "1") {
+                
+                axios.put("http://localhost:8080/entrada", {
+                    "cols": randCol,
+                    "rows": randRow}, {headers: headers})
+                .then(res => {
+                    console.log(res)
+                })
+                .catch(err => {
+                    console.log(err)
+                }
+                )
+                alert("Pase a la fila: fila" + String(randRow+1) + " y columna: " + String(randCol+1));
+                sended = true;
+                window.location.reload(false);
             }
-        }
-        if (!sended) {
-            alert("No hay espacios disponibles");
+            const unique = historial.filter(onlyUnique);
+            if (unique.length > cols*rows) {
+                alert("No hay mas espacios libres")
+                sended = true;
+            }
         }
     }
 
+    
     const handleSalida = (e) => {
         e.preventDefault();
+        const historial = [];
+
         let sended = false;
-        for (let i = 0; i < data.length; i++) {
-            const row = data[i];
-            for (let j = 0; j < row.length; j++) {
-                const item = row[j];
-                if (item === "0") {
-                    const ResponseObject = {
-                        rows:i ,
-                        cols:j
-                    }
-                    console.log(ResponseObject);
-                    
-                    axios.put("http://localhost:8080/salida", ResponseObject, {headers: headers})
-                    .then(res => {
-                        console.log(res);
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    });
-                    sended = true;
-                    
-                    alert("Desocupando espacio: " + String(i+1) + " y columna: " + String(j+1));
-                    window.location.reload(false);
-                    break;
+        while (sended === false) {
+            const randCol = between(0, cols);
+            const randRow = between(0, rows);
+            historial.push([randRow, randCol]);
+            if (data[randRow][randCol] === "0") {
+                
+                axios.put("http://localhost:8080/salida", {
+                    "cols": randCol,
+                    "rows": randRow}, {headers: headers})
+                .then(res => {
+                    console.log(res)
+                })
+                .catch(err => {
+                    console.log(err)
                 }
+                )
+                alert("Desocupando espacio: fila" + String(randRow+1) + " y columna: " + String(randCol+1));
+                window.location.reload(false);
+                sended = true;
+
             }
 
-            if (sended) {
-                break;
+            const unique = historial.filter(onlyUnique);
+     
+            if (unique.length > cols*rows) {
+                alert("No hay espacios ocupados")
+                sended = true;
             }
         }
-        if (!sended) {
-            alert("No hay espacios ocupados");
+        
+    }
+
+    const sumData = data.reduce((a, b) => a.concat(b), []).reduce((a, b) => Number(a) + Number(b), 0);
+    console.log(sumData);
+
+    //#############################################################################################################################
+    const handleNewArray = (e) => {
+        e.preventDefault();
+        axios.post("http://localhost:8080/createparking", data2, {headers: headers})
+        .then(res => {
+            console.log(res)
+        })
+        .catch(err => {
+            console.log(err)
+        })
+        window.location.reload(false);
+    }
+
+    const handleChange = (e) => {
+        e.preventDefault();
+        const {name, type, value} = e.target;
+        switch (type) {
+            case "number":
+                setData2({...data2, [name]: Number(value)});
+                break;
+            default:
+                setData2({...data2, [name]: value});
         }
     }
+    
 
     return (
         <Fragment>
@@ -164,17 +206,15 @@ const TableIndex = () => {
                 <h1>SISTEMA DE PARQUEO DE VEHICULOS</h1>
             </div>
             <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>  
-                <h2>Espacios Totales: {rows * cols - data.length}</h2>
+                <h2>Espacios disponibles: {sumData}</h2>
             </div>
 
                 <Row>
                     <Card>
                         <CardBody>
                             <DataTable
-                                
                                 columns={columns}
                                 data={array}
-                                
                             />
                         </CardBody>
 
@@ -189,6 +229,25 @@ const TableIndex = () => {
                         SALIR DEL ESTACIONAMIENTO
                     </Button>
                     
+                    </Card>
+                </Row>
+
+                <Row>
+                    <Card>
+                        <h2>GENERAR NUEVO ESTACIONAMIENTO</h2>
+                        <Form onSubmit={handleNewArray}>
+                            <FormGroup>
+                                <Label>Ingrese el numero de fila</Label>
+                                <Input type="number" name="rows" id="exampleEmail" placeholder="Filas" onChange={handleChange} />
+                            </FormGroup>
+                            <FormGroup>
+                                <Label>Ingrese el numero de columna</Label>
+                                <Input type="number" name="cols" id="examplePassword" placeholder="Columnas" onChange={handleChange} />
+                            </FormGroup>
+                            <Button>
+                                ENTRAR
+                            </Button>
+                        </Form>
                     </Card>
                 </Row>
             </Container>
