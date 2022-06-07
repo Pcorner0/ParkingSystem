@@ -16,7 +16,7 @@ func main() {
 
 	router.GET("/getdata", controllers.GetData)
 
-	router.POST("/entrada", controllers.UpdateData)
+	router.PUT("/entrada", controllers.UpdateData)
 
 	router.PUT("/salida", controllers.Salida)
 
